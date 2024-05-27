@@ -80,18 +80,12 @@ class TestClass:
     def a_property(self):
         return self.a_method()
 
-    @patch.object(TestClass, 'a_method')
-    def test_memoize(self, mock_a_method):
-        """Create an instance of TestClass."""
-        instance = self.TestClass()
-
-        """Call a_property twice."""
-        result1 = instance.a_property
-        result2 = instance.a_property
-
-        """Check the results."""
-        self.assertEqual(result1, 42)
-        self.assertEqual(result2, 42)
-
-        """Assert that a_method was called only once."""
-        mock_a_method.assert_called_once()
+    with patch.object(
+                TestClass,
+                "a_method",
+                return_value=lambda: 42,
+                ) as memo_fxn:
+            test_class = TestClass()
+            self.assertEqual(test_class.a_property(), 42)
+            self.assertEqual(test_class.a_property(), 42)
+            memo_fxn.assert_called_once()
